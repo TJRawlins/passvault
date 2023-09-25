@@ -13,6 +13,8 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import com.passvault.spring.dtos.LoginDto;
 import com.passvault.spring.encrypt.*;
 
 
@@ -24,19 +26,18 @@ public class UserController extends EncryptAes{
 	@Autowired
 	private UserRepository userRepo;
 	
-	// GET LOGIN - AES ENCRYPTION (SHA256 HASH)
-	@GetMapping("{username}/{password}")
-	public ResponseEntity<User> login(@PathVariable String username, @PathVariable String password) {
+	// GET LOGIN - AES-256 ENCRYPTION [USING DTO]
+	@PostMapping("login")
+	public ResponseEntity<User> login(@RequestBody LoginDto loginDto) {
 		// Decrypt Secret Key then Encrypt Password using AES256 and check for match
-		// Secret key encrypted and stored in PassvaultApplication
 		String decSecret = SecretKey.DecryptSecret();
-        String encPw = EncryptAes.encrypt(password, decSecret); 
-        Optional<User> user = userRepo.findUserByUsernameAndPassword(username, encPw);
+        String encPw = EncryptAes.encrypt(loginDto.password, decSecret); 
+        Optional<User> user = userRepo.findUserByUsernameAndPassword(loginDto.username, encPw);
         if(user.isEmpty()) {
         	return new ResponseEntity<User>(HttpStatus.NOT_FOUND);
         }
         return new ResponseEntity<User>(user.get(), HttpStatus.OK);
-    }  
+    }
 	
 	// GET ALL
 	@GetMapping
@@ -64,7 +65,7 @@ public class UserController extends EncryptAes{
 		if(user.getId() != 0) {
 			return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
 		}
-		// Encrypt Password AES + SHA256
+		// Encrypt Password AES256
 		String decSecret = SecretKey.DecryptSecret();
         String encPw = EncryptAes.encrypt(user.getPassword(), decSecret); 
         user.setPassword(encPw);
