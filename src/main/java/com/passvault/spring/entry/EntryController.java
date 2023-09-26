@@ -15,6 +15,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.passvault.spring.encrypt.EncryptAes;
+import com.passvault.spring.encrypt.SecretKey;
+
 
 @CrossOrigin
 @RestController
@@ -42,6 +45,24 @@ public class EntryController {
 			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 		}
 		return new ResponseEntity<Entry>(entry.get(), HttpStatus.OK);
+	}	
+	
+	// GET CLAERTEXT PASSWORD
+	@GetMapping("getpass/{id}")
+	public ResponseEntity<String> getCtPass(@PathVariable int id) {
+		if(id <= 0) {
+			return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+		}
+		Optional<Entry> entry = entryRepo.findById(id);
+		if(entry.isEmpty()) {
+			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+		}
+
+		String decSecret = SecretKey.DecryptSecret();
+		String encPw = entry.get().getPassword();
+		String decPw = EncryptAes.decrypt(encPw, decSecret);
+	
+		return new ResponseEntity<String>(decPw, HttpStatus.OK);
 	}
 	
 	// POST
@@ -50,6 +71,10 @@ public class EntryController {
 		if(entry.getId() != 0) {
 			return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
 		}
+		// Encrypt Password AES256
+		String decSecret = SecretKey.DecryptSecret();
+        String encPw = EncryptAes.encrypt(entry.getPassword(), decSecret); 
+        entry.setPassword(encPw);
 		entryRepo.save(entry);
 		return new ResponseEntity<Entry>(entry, HttpStatus.CREATED);
 	}

@@ -1,7 +1,10 @@
 package com.passvault.spring.category;
 
 import java.time.LocalDate;
+import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.passvault.spring.entry.Entry;
 import com.passvault.spring.user.User;
 
 import jakarta.persistence.*;
@@ -14,12 +17,18 @@ public class Category {
 	@GeneratedValue(strategy=GenerationType.IDENTITY)
 	private int id;
 	@Column(length=30)
-	private String name;
+	private String name = "";
 	@Column(columnDefinition="datetime not null")
-	private LocalDate dateCreated;
+	private LocalDate dateCreated = LocalDate.now();
+	
+	// FOREIGN KEYS
+	@JsonManagedReference
+	@OneToMany(mappedBy="category")
+	private List<Entry> entries;
+	
 	@ManyToOne(optional=false)
-	@JoinColumn(name="users")
-	private User users;
+	@JoinColumn(name="userId")
+	private User user;
 
 	// GETTERS & SETTERS
 	public int getId() {
@@ -40,11 +49,17 @@ public class Category {
 	public void setDateCreated(LocalDate dateCreated) {
 		this.dateCreated = dateCreated;
 	}
-	public User getUsers() {
-		return users;
+	public List<Entry> getEntries() {
+		return entries;
 	}
-	public void setUsers(User users) {
-		this.users = users;
+	public void setEntries(List<Entry> entries) {
+		this.entries = entries;
+	}
+	public User getUser() {
+		return user;
+	}
+	public void setUser(User user) {
+		this.user = user;
 	}
 	
 

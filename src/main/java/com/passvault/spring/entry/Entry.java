@@ -2,12 +2,13 @@ package com.passvault.spring.entry;
 
 import java.time.LocalDate;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.passvault.spring.category.Category;
 
 import jakarta.persistence.*;
 
 @Entity
-@Table(name="entries",uniqueConstraints=@UniqueConstraint(name="UIDX_Username", columnNames = { "username" }))
+@Table(name="entries")
 public class Entry {
 	
 	// PROPERTIES
@@ -20,17 +21,19 @@ public class Entry {
 	private String description = "";
 	@Column(length=30)
 	private String username = "";
-	@Column(length=30)
+	@Column(length=100)
 	private String password = "";
 	@Column(length=30)
-	private String cpassword = "";
-	@Column(length=225)
 	private String url = "";
 	@Column(columnDefinition="datetime not null")
 	private LocalDate dateCreated = LocalDate.now();
+	
+	@JsonBackReference
 	@ManyToOne(optional=false)
 	@JoinColumn(name="categoryId")
 	private Category category;
+	
+
 
 	// GETTERS & SETTERS
 	public int getId() {
@@ -62,12 +65,6 @@ public class Entry {
 	}
 	public void setPassword(String password) {
 		this.password = password;
-	}
-	public String getCpassword() {
-		return cpassword;
-	}
-	public void setCpassword(String cpassword) {
-		this.cpassword = cpassword;
 	}
 	public String getUrl() {
 		return url;
