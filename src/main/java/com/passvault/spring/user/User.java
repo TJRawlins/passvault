@@ -1,5 +1,7 @@
 package com.passvault.spring.user;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import jakarta.persistence.*;
 
 @Entity
@@ -11,6 +13,7 @@ public class User {
 	private int id;
 	@Column(length=30, nullable=false)
 	private String username;
+	@JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
 	@Column(length=255, nullable=false)
 	private String password;
 	@Column(columnDefinition="bit not null")
