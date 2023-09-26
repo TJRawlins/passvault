@@ -29,7 +29,7 @@ public class PasswordGeneratorController {
         String upper = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
         String digits = "123456789";
         String special = "/|\\*+-{}[]()!@#$%^&*~?><";
-
+        
         // LOOP TO ADD CHARACTERS TO PASSWORD
         while(true)
         {
