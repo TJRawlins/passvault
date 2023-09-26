@@ -27,12 +27,13 @@ public class Entry {
 	private String url = "";
 	@Column(columnDefinition="datetime not null")
 	private LocalDate dateCreated = LocalDate.now();
-	
+		
 	@JsonBackReference
 	@ManyToOne(optional=false)
 	@JoinColumn(name="categoryId")
 	private Category category;
 	
+	// LINKED TO USER BY: ENTRY:CATEGORY ID => CATEGORY:USER ID => USER
 
 
 	// GETTERS & SETTERS
