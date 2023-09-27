@@ -17,6 +17,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.passvault.spring.encrypt.EncryptAes;
 import com.passvault.spring.encrypt.SecretKey;
+import com.passvault.spring.user.User;
+import com.passvault.spring.user.UserRepository;
 
 
 @CrossOrigin
@@ -26,6 +28,9 @@ public class EntryController {
 	
 	@Autowired
 	private EntryRepository entryRepo;
+	
+	@Autowired
+	private UserRepository userRepo;
 	
 	// GET ALL
 	@GetMapping
@@ -71,6 +76,10 @@ public class EntryController {
 		if(entry.getId() != 0) {
 			return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
 		}
+		// CHECK FOR AMDIN PRIVILEGE
+		Optional<User> user = userRepo.findById(entry.getCategory().getUser().getId());
+		if(!user.get().getAdmin()) return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+		
 		// Encrypt Password AES256
 		String decSecret = SecretKey.DecryptSecret();
         String encPw = EncryptAes.encrypt(entry.getPassword(), decSecret); 
@@ -86,6 +95,10 @@ public class EntryController {
 		if(entry.getId() <= 0) {
 			return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
 		}
+		// CHECK FOR AMDIN PRIVILEGE
+		Optional<User> user = userRepo.findById(entry.getCategory().getUser().getId());
+		if(!user.get().getAdmin()) return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+		
 		entryRepo.save(entry);
 		return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 	}
