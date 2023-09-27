@@ -25,6 +25,7 @@ public class PasswordGeneratorController {
         // result
         String pw = "";
         
+        // OPTION STRINGS - GETS PASSED TO RANDOMCHAR()
         String lower = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".toLowerCase();
         String upper = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
         String digits = "123456789";
@@ -42,6 +43,7 @@ public class PasswordGeneratorController {
         	pw += pwgenDto.upperCase ? randomChar(upper) : "";
         	if (pw.length() == pwgenDto.length) break;
         }
+        // SCRAMBLES PASSWORD STRING TO MAXIMIZE RANDOMNESS
         pw = scrambleStr(pw);
         
         return new ResponseEntity<String>(pw, HttpStatus.OK);

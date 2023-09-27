@@ -73,7 +73,7 @@ public class CategoryController {
 		}
 		// CHECK FOR AMDIN PRIVILEGE
 		Optional<User> user = userRepo.findById(category.getUser().getId());
-		if(!user.get().getAdmin()) return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+		if(!user.get().getAdmin() || user.get().getId() != category.getUser().getId()) return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
 		
 		catRepo.save(category);
 		return new ResponseEntity<>(HttpStatus.NO_CONTENT);
