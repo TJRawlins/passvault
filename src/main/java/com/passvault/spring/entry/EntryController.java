@@ -15,6 +15,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.passvault.spring.category.Category;
+import com.passvault.spring.category.CategoryRepository;
 import com.passvault.spring.encrypt.EncryptAes;
 import com.passvault.spring.encrypt.SecretKey;
 import com.passvault.spring.user.User;
@@ -31,6 +33,9 @@ public class EntryController {
 	
 	@Autowired
 	private UserRepository userRepo;
+	
+	@Autowired
+	private CategoryRepository catRepo;
 	
 	// GET ALL
 	@GetMapping
@@ -76,9 +81,10 @@ public class EntryController {
 		if(entry.getId() != 0) {
 			return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
 		}
-		// CHECK FOR AMDIN PRIVILEGE
-		Optional<User> user = userRepo.findById(entry.getCategory().getUser().getId());
-		if(!user.get().getAdmin()) return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+		// *** CHECK FOR AMDIN PRIVILEGE
+//		Optional<Category> cat = catRepo.findById(entry.getCategory().getId());
+//		Optional<User> user = userRepo.findById(cat.get().getUser().getId());
+//		if(!user.get().getAdmin()) return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
 		
 		// Encrypt Password AES256
 		String decSecret = SecretKey.DecryptSecret();
@@ -95,9 +101,18 @@ public class EntryController {
 		if(entry.getId() <= 0) {
 			return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
 		}
-		// CHECK FOR AMDIN PRIVILEGE
-		Optional<User> user = userRepo.findById(entry.getCategory().getUser().getId());
+		// *** CHECK FOR AMDIN PRIVILEGE ------> NEED TO FIX.
+		/* ALWAYS ADMIN BECAUSE USER ID IS FROM CATEGORY WHICH WILL ALWAYS REFERENCE AN ADMIN USER
+		 * POSSIBLE SOLUTION - ADD USERID PROPERTY TO ENTRY CLASS SO THAT IT CAN BE TESTED BASED IN USERID PASSED IN VIA JSON
+		 * */
+		Optional<Category> cat = catRepo.findById(entry.getCategory().getId());
+		Optional<User> user = userRepo.findById(cat.get().getUser().getId());
 		if(!user.get().getAdmin()) return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+		
+		// Encrypt Password AES256
+		String decSecret = SecretKey.DecryptSecret();
+        String encPw = EncryptAes.encrypt(entry.getPassword(), decSecret);
+        entry.setPassword(encPw);
 		
 		entryRepo.save(entry);
 		return new ResponseEntity<>(HttpStatus.NO_CONTENT);

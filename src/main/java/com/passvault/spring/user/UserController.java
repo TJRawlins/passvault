@@ -81,6 +81,12 @@ public class UserController extends EncryptAes{
 		if(user.getId() <= 0) {
 			return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
 		}
+		
+		// Encrypt Password AES256
+		String decSecret = SecretKey.DecryptSecret();
+        String encPw = EncryptAes.encrypt(user.getPassword(), decSecret);
+        user.setPassword(encPw);
+
 		userRepo.save(user);
 		return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 	}
