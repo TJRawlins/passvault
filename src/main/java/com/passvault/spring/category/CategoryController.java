@@ -82,11 +82,13 @@ public class CategoryController {
 	// DELETE
 		@SuppressWarnings("rawtypes")
 		@DeleteMapping("{id}")
-		public ResponseEntity DeleteCategory(@PathVariable int id) {
+		public ResponseEntity DeleteCategory(@PathVariable int id,@RequestBody User userId) {
 			if(id <= 0) {
 				return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
 			}
 			// CHECK FOR AMDIN PRIVILEGE
+			Optional<User> user = userRepo.findById(userId.getId());
+			if(!user.get().getAdmin()) return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
 			
 			catRepo.deleteById(id);
 			return new ResponseEntity<>(HttpStatus.NO_CONTENT);
